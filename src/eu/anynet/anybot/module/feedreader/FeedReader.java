@@ -96,12 +96,38 @@ public class FeedReader extends Module
          SyndFeedInput input = new SyndFeedInput();
          String url = feedsettings.getUrl();
          SyndFeed feed = input.build(new XmlReader(new URL(url)));
+         
+         int max = -1;
+         int i = 0;
+         if(feedsettings.getLastfetch()==null)
+         {
+            max=5;
+            for(FeedTarget target : feedsettings.getTargets())
+            {
+               if(target.getNetworkkey().equals(this.getBot().getNetworkSettings().getKey()))
+               {
+                  this.getBot().sendMessage(target.getTarget(), "[feedreader] No last fetch date found. Print only the first "+max+" entries to avoid spamming.");
+               }
+            }
+         }
+
          for(Object entry : feed.getEntries())
          {
             SyndEntry feedentry = (SyndEntry)entry;
             if(feedsettings.getLastfetch()==null || feedsettings.getLastfetch().compareTo(feedentry.getPublishedDate())<0)
             {
-               this.getBot().sendMessage(feedsettings.getTarget(), "["+feedsettings.getName()+"] "+feedentry.getTitle()+" - "+feedentry.getLink());
+               for(FeedTarget target : feedsettings.getTargets())
+               {
+                  if(target.getNetworkkey().equals(this.getBot().getNetworkSettings().getKey()))
+                  {
+                     this.getBot().sendMessage(target.getTarget(), "["+feedsettings.getName()+"] "+feedentry.getTitle()+" - "+feedentry.getLink());
+                  }
+               }
+               i++;
+               if(max>0 && i>=max)
+               {
+                  break;
+               }
                result = true;
             }
          }
@@ -109,47 +135,39 @@ public class FeedReader extends Module
       catch(IOException | IllegalArgumentException | FeedException | java.lang.ExceptionInInitializerError ex)
       {
          this.getBot().sendDebug("[feedreader] "+ex.getClass().getName()+": "+ex.getMessage());
-         ex.printStackTrace();
       }
       return result;
    }
 
-
-   /*
-   public static void main(String[] args)
-   {
-      String url = "http://forum.netcup.de/index.php?page=ThreadsFeed&format=rss2";
-      SyndFeedInput input = new SyndFeedInput();
-
-      try
-      {
-
-         SyndFeed feed = input.build(new XmlReader(new URL(url)));
-
-         System.out.println("==> "+feed.getTitle());
-         for(Object entry : feed.getEntries())
-         {
-            SyndEntry feedentry = (SyndEntry)entry;
-            System.out.println(feedentry.getPublishedDate()+" "+feedentry.getTitle());
-         }
-
-      } catch (IllegalArgumentException|IOException | FeedException ex) {
-         Logger.getLogger(FeedReader.class.getName()).log(Level.SEVERE, null, ex);
-      }
-   }
-   */
-
    @Override
    public void onMessage(ChatMessage msg)
    {
-      if(msg.isBotAsked() && msg.isMatch("^feed add .*"))
+      if(msg.isBotAsked() && msg.isMatch("^feed add") && msg.count()>3)
       {
+         String url = msg.get(3);
+         String name = msg.get(4, -1, " ");
+         
+         boolean exist = false;
          FeedSettings newfeed = new FeedSettings();
-         newfeed.setNetworkkey(msg.getNetworkSettings().getKey());
-         newfeed.setTarget(msg.getResponseTarget());
-         newfeed.setUrl(msg.get(3));
-         newfeed.setName(msg.get(4, -1, " "));
-         this.feeds.addFeed(newfeed);
+         if(this.feeds.getFeedByUrl(url)!=null)
+         {
+            newfeed = this.feeds.getFeedByUrl(url);
+            exist=true;
+         }
+         
+         newfeed.setUrl(url);
+         newfeed.setName(name);
+         
+         FeedTarget newtarget = new FeedTarget();
+         newtarget.setNetworkkey(msg.getNetworkSettings().getKey());
+         newtarget.setTarget(msg.getResponseTarget());
+         newfeed.addTarget(newtarget);
+         
+         if(exist==false)
+         {
+            this.feeds.addFeed(newfeed);
+         }
+         this.feeds.serialize();
          msg.respond("Feed added!");
       }
    }

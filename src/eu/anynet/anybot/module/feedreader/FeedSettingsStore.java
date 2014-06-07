@@ -51,12 +51,23 @@ public class FeedSettingsStore extends Serializable<FeedSettingsStore>
    public void addFeed(FeedSettings setting)
    {
       this.feeds.add(setting);
-      this.serialize();
    }
 
    public ArrayList<FeedSettings> getFeeds()
    {
       return this.feeds;
+   }
+   
+   public FeedSettings getFeedByUrl(String url)
+   {
+      for(FeedSettings item : this.feeds)
+      {
+         if(item.getUrl().equals(url))
+         {
+            return item;
+         }
+      }
+      return null;
    }
 
 
