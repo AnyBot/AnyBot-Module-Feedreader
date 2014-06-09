@@ -144,31 +144,38 @@ public class FeedReader extends Module
    {
       if(msg.isBotAsked() && msg.isMatch("^feed add") && msg.count()>3)
       {
-         String url = msg.get(3);
-         String name = msg.get(4, -1, " ");
-         
-         boolean exist = false;
-         FeedSettings newfeed = new FeedSettings();
-         if(this.feeds.getFeedByUrl(url)!=null)
+         if(msg.isChannelSet() && msg.isNickSet() && msg.getBot().isChannelOperator(msg.getChannel(), msg.getNick()))
          {
-            newfeed = this.feeds.getFeedByUrl(url);
-            exist=true;
-         }
-         
-         newfeed.setUrl(url);
-         newfeed.setName(name);
-         
-         FeedTarget newtarget = new FeedTarget();
-         newtarget.setNetworkkey(msg.getNetworkSettings().getKey());
-         newtarget.setTarget(msg.getResponseTarget());
-         newfeed.addTarget(newtarget);
-         
-         if(exist==false)
+            String url = msg.get(3);
+            String name = msg.get(4, -1, " ");
+
+            boolean exist = false;
+            FeedSettings newfeed = new FeedSettings();
+            if(this.feeds.getFeedByUrl(url)!=null)
+            {
+               newfeed = this.feeds.getFeedByUrl(url);
+               exist=true;
+            }
+
+            newfeed.setUrl(url);
+            newfeed.setName(name);
+
+            FeedTarget newtarget = new FeedTarget();
+            newtarget.setNetworkkey(msg.getNetworkSettings().getKey());
+            newtarget.setTarget(msg.getResponseTarget());
+            newfeed.addTarget(newtarget);
+
+            if(exist==false)
+            {
+               this.feeds.addFeed(newfeed);
+            }
+            this.feeds.serialize();
+            msg.respond("Feed added!");
+         } 
+         else
          {
-            this.feeds.addFeed(newfeed);
+            msg.respond("You're not a channel operator!");
          }
-         this.feeds.serialize();
-         msg.respond("Feed added!");
       }
    }
 
