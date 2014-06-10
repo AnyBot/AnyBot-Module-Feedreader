@@ -53,11 +53,16 @@ public class FeedSettingsStore extends Serializable<FeedSettingsStore>
       this.feeds.add(setting);
    }
 
+   public void removeFeed(FeedSettings setting)
+   {
+      this.feeds.remove(setting);
+   }
+
    public ArrayList<FeedSettings> getFeeds()
    {
       return this.feeds;
    }
-   
+
    public FeedSettings getFeedByUrl(String url)
    {
       for(FeedSettings item : this.feeds)
@@ -68,6 +73,11 @@ public class FeedSettingsStore extends Serializable<FeedSettingsStore>
          }
       }
       return null;
+   }
+
+   public int getFeedCount()
+   {
+      return this.feeds.size();
    }
 
 

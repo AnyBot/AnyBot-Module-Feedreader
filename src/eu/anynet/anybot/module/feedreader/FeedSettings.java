@@ -26,7 +26,7 @@ public class FeedSettings
    private String name;
    private String url;
    private Date lastfetch;
-   
+
    @XmlElementWrapper(name = "FeedTargets")
    @XmlElement(name = "FeedTarget")
    private ArrayList<FeedTarget> targets = new ArrayList<>();
@@ -54,7 +54,7 @@ public class FeedSettings
    public void setLastfetch(Date lastfetch) {
       this.lastfetch = lastfetch;
    }
-   
+
    public boolean containsTarget(FeedTarget target)
    {
       for(FeedTarget t : this.targets)
@@ -66,7 +66,7 @@ public class FeedSettings
       }
       return false;
    }
-   
+
    public void addTarget(FeedTarget target)
    {
       if(!this.containsTarget(target))
@@ -74,10 +74,32 @@ public class FeedSettings
          this.targets.add(target);
       }
    }
-   
+
+   public FeedTarget getTarget(FeedTarget target)
+   {
+      for(FeedTarget t : this.getTargets())
+      {
+         if(t.equals(target))
+         {
+            return t;
+         }
+      }
+      return null;
+   }
+
+   public void removeTarget(FeedTarget target)
+   {
+      this.targets.remove(this.getTarget(target));
+   }
+
    public ArrayList<FeedTarget> getTargets()
    {
       return this.targets;
+   }
+
+   public int getTargetCount()
+   {
+      return this.targets.size();
    }
 
 }
