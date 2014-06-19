@@ -16,11 +16,22 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "FeedTarget")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class FeedTarget 
+public class FeedTarget
 {
-   
+
    private String networkkey;
    private String target;
+
+   public FeedTarget(String key, String target)
+   {
+      this.networkkey = key;
+      this.target = target;
+   }
+
+   public FeedTarget()
+   {
+      this(null, null);
+   }
 
    public String getNetworkkey() {
       return networkkey;
@@ -37,10 +48,10 @@ public class FeedTarget
    public void setTarget(String target) {
       this.target = target;
    }
-   
+
    public boolean equals(FeedTarget target)
    {
       return this.target.equals(target.getTarget()) && this.networkkey.contains(target.getNetworkkey());
    }
-   
+
 }
