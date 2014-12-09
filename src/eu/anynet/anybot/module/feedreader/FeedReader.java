@@ -75,13 +75,9 @@ public class FeedReader extends Module
                }
                synchronized (me)
                {
-                  for(FeedSettings item : processed)
+                  for(FeedSettings item : me.feeds.getFeeds())
                   {
-                     int idx = me.feeds.getFeeds().indexOf(item);
-                     if(idx>=0)
-                     {
-                        me.feeds.getFeeds().get(idx).setLastfetch(new Date());
-                     }
+                     item.setLastfetch(new Date());
                   }
                   me.feeds.serialize();
                }
@@ -183,7 +179,7 @@ public class FeedReader extends Module
                newfeed.setName(name);
 
                FeedTarget newtarget = new FeedTarget();
-               newtarget.setNetworkkey(this.getNetworksettings().getKey());
+               newtarget.setNetworkkey(this.getNetwork().getKey());
                newtarget.setTarget(event.getResponseTarget());
                newfeed.addTarget(newtarget);
 
@@ -199,7 +195,7 @@ public class FeedReader extends Module
                event.respondNoHighlight("[feedreader] Found "+this.feeds.getFeeds().size()+" feed"+(this.feeds.getFeeds().size()==1 ? "":"s")+" for this target:");
                for(FeedSettings feed : this.feeds.getFeeds())
                {
-                  FeedTarget target = new FeedTarget(this.getNetworksettings().getKey(), event.getResponseTarget());
+                  FeedTarget target = new FeedTarget(this.getNetwork().getKey(), event.getResponseTarget());
                   if(feed.containsTarget(target))
                   {
                      event.respondNoHighlight(this.feeds.getFeeds().indexOf(feed)+") "+feed.getUrl()+" ("+feed.getName()+")");
@@ -213,7 +209,7 @@ public class FeedReader extends Module
                {
                   FeedSettings feed = this.feeds.getFeeds().get(i);
                   FeedTarget newtarget = new FeedTarget();
-                  newtarget.setNetworkkey(this.getNetworksettings().getKey());
+                  newtarget.setNetworkkey(this.getNetwork().getKey());
                   newtarget.setTarget(event.getResponseTarget());
 
                   if(feed.containsTarget(newtarget))
